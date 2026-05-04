@@ -1,0 +1,168 @@
+{
+  "name": "markdown-ai-translator",
+  "displayName": "Markdown AI Translator",
+  "description": "AI-powered translation for Markdown files with strict syntax preservation. Supports OpenAI, Claude, OpenRouter, MiniMax, DeepSeek, and any OpenAI-compatible endpoint.",
+  "version": "0.1.0",
+  "publisher": "local",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Machine Learning"
+  ],
+  "activationEvents": [
+    "onLanguage:markdown"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "markdownAiTranslator.translate",
+        "title": "Translate Document",
+        "category": "Markdown AI Translator"
+      },
+      {
+        "command": "markdownAiTranslator.translateSelection",
+        "title": "Translate Selection",
+        "category": "Markdown AI Translator"
+      },
+      {
+        "command": "markdownAiTranslator.pickLanguage",
+        "title": "Translate Document To…",
+        "category": "Markdown AI Translator"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "markdownAiTranslator.translate",
+          "when": "resourceLangId == markdown",
+          "group": "1_modification@99"
+        },
+        {
+          "command": "markdownAiTranslator.translateSelection",
+          "when": "resourceLangId == markdown && editorHasSelection",
+          "group": "1_modification@100"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "markdownAiTranslator.translate",
+          "when": "resourceLangId == markdown",
+          "group": "navigation@99"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "markdownAiTranslator.translate",
+          "when": "resourceLangId == markdown"
+        },
+        {
+          "command": "markdownAiTranslator.translateSelection",
+          "when": "resourceLangId == markdown && editorHasSelection"
+        },
+        {
+          "command": "markdownAiTranslator.pickLanguage",
+          "when": "resourceLangId == markdown"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Markdown AI Translator",
+      "properties": {
+        "markdownAiTranslator.provider": {
+          "type": "string",
+          "enum": [
+            "openai-compatible",
+            "anthropic"
+          ],
+          "enumDescriptions": [
+            "OpenAI-compatible Chat Completions API. Works with OpenAI, OpenRouter, MiniMax, DeepSeek, Together, Groq, Ollama, vLLM, LM Studio, etc.",
+            "Native Anthropic Messages API (api.anthropic.com)."
+          ],
+          "default": "openai-compatible",
+          "description": "Which API protocol to speak. Pick 'anthropic' only when calling the native Anthropic API directly; for Claude via OpenRouter use 'openai-compatible'."
+        },
+        "markdownAiTranslator.endpoint": {
+          "type": "string",
+          "default": "https://api.openai.com/v1",
+          "description": "Base URL of the LLM endpoint. Examples: https://api.openai.com/v1, https://openrouter.ai/api/v1, https://api.anthropic.com/v1, https://api.minimaxi.chat/v1, https://api.deepseek.com/v1, http://localhost:11434/v1."
+        },
+        "markdownAiTranslator.apiKey": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "API key for the configured endpoint. **Tip:** put this in your *User* settings, not workspace settings, so it isn't committed to git."
+        },
+        "markdownAiTranslator.model": {
+          "type": "string",
+          "default": "gpt-4o-mini",
+          "description": "Model identifier passed to the API (e.g. gpt-4o-mini, claude-sonnet-4-6, anthropic/claude-3.5-sonnet, MiniMax-Text-01, deepseek-chat)."
+        },
+        "markdownAiTranslator.targetLanguage": {
+          "type": "string",
+          "default": "Simplified Chinese",
+          "description": "Default target language (e.g. 'Simplified Chinese', 'Japanese', 'Spanish', 'Brazilian Portuguese'). Use the 'Translate Document To…' command to choose ad hoc."
+        },
+        "markdownAiTranslator.additionalInstructions": {
+          "type": "string",
+          "default": "",
+          "editPresentation": "multilineText",
+          "description": "Extra instructions appended to the system prompt — tone, glossary, regional preferences, etc."
+        },
+        "markdownAiTranslator.temperature": {
+          "type": "number",
+          "default": 0.2,
+          "minimum": 0,
+          "maximum": 2,
+          "description": "Sampling temperature. Keep low (0.0–0.3) for technical docs."
+        },
+        "markdownAiTranslator.maxTokens": {
+          "type": "number",
+          "default": 8192,
+          "minimum": 256,
+          "description": "Maximum tokens for the response."
+        },
+        "markdownAiTranslator.stream": {
+          "type": "boolean",
+          "default": true,
+          "description": "Stream the translation as it arrives so the preview fills in progressively."
+        },
+        "markdownAiTranslator.previewMode": {
+          "type": "string",
+          "enum": [
+            "rendered",
+            "source",
+            "both"
+          ],
+          "enumDescriptions": [
+            "Open VS Code's Markdown preview to the side (rendered).",
+            "Open the translated Markdown source in a side editor.",
+            "Open both: source editor and rendered preview."
+          ],
+          "default": "rendered",
+          "description": "How to display the translation. Nothing is written to disk — use 'Save As…' from the source view if you want to keep it."
+        },
+        "markdownAiTranslator.extraHeaders": {
+          "type": "object",
+          "default": {},
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Extra HTTP headers to send with every request (e.g. {\"HTTP-Referer\": \"https://my-app\", \"X-Title\": \"My App\"} for OpenRouter ranking)."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.4.0"
+  }
+}
